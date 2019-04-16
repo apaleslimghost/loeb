@@ -1,0 +1,24 @@
+{
+  "name": "loeb",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "athloi exec npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quarterto/loeb.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/quarterto/loeb/issues"
+  },
+  "homepage": "https://github.com/quarterto/loeb#readme",
+  "devDependencies": {
+    "athloi": "^1.4.0"
+  }
+}

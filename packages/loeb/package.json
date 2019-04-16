@@ -1,0 +1,20 @@
+{
+  "name": "loeb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@mdx-js/parcel-plugin-mdx": "^1.0.7",
+    "@mdx-js/react": "^1.0.6",
+    "import-fresh": "^3.0.0",
+    "parcel-bundler": "^1.12.3",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  }
+}
