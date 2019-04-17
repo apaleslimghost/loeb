@@ -5,7 +5,7 @@ const path = require('path')
 class MDXAsset extends Asset {
 	constructor(name, pkg, options) {
 		super(name, pkg, options)
-		this.type = 'jsx'
+		this.type = 'js'
 	}
 
 	async generate() {
@@ -21,7 +21,7 @@ ${compiled}
 
 		return [
 			{
-				type: 'jsx',
+				type: 'js',
 				value: fullCode,
 				sourceMap: undefined
 			}
