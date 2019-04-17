@@ -19,6 +19,6 @@
   },
   "homepage": "https://github.com/quarterto/loeb#readme",
   "devDependencies": {
-    "athloi": "^1.4.0"
+    "@financial-times/athloi": "^1.0.0-beta.24"
   }
 }

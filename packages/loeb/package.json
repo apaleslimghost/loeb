@@ -10,12 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mdx-js/parcel-plugin-mdx": "^1.0.7",
-    "@mdx-js/react": "^1.0.6",
+    "@loeb/mdx": "file:../mdx",
     "import-fresh": "^3.0.0",
     "mkdirp": "^0.5.1",
-    "parcel-bundler": "^1.12.3",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "parcel-bundler": "^1.12.3"
   }
 }
