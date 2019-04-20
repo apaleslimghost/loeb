@@ -23,18 +23,18 @@ module.exports = async ({ plugins = [] }) => {
 			const exported = importFresh(entry.name)
 			const page = exported.__esModule ? exported.default : exported
 
+			const entryType = path.extname(
+				entry.entryAsset.name
+			).slice(1)
+
 			const targetPath = path.join(
 				'site',
-				path.relative('dist', entry.name).replace(/\.js$/, '.html')
+				entry.entryAsset.relativeName.replace(new RegExp(`\\.${entryType}$`), '.html')
 			)
 
 			mkdirp.sync(
 				path.dirname(targetPath)
 			)
-
-			const entryType = path.extname(
-				entry.entryAsset.name
-			).slice(1)
 
 			const plugin = plugins.find(plugin => plugin.type === entryType)
 
