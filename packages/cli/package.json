@@ -2,17 +2,15 @@
   "name": "loeb",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "bin": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@loeb/core": "file:../core",
     "@loeb/mdx": "file:../mdx",
-    "import-fresh": "^3.0.0",
-    "mkdirp": "^0.5.1",
-    "parcel-bundler": "^1.12.3"
+    "yargs": "^13.2.2"
   }
 }

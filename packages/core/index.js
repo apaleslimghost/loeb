@@ -4,12 +4,13 @@ const path = require('path')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
 
-module.exports = async ({ plugins = [] }) => {
+module.exports = async ({ watch = true, plugins = [] }) => {
 	const bundler = new Bundler('pages/**/*', {
 		target: 'node',
 		autoinstall: false,
 		hmr: false,
 		sourceMaps: false,
+		watch,
 	})
 
 	plugins.forEach(plugin => {
@@ -18,7 +19,7 @@ module.exports = async ({ plugins = [] }) => {
 		}
 	})
 
-	bundler.on('bundled', bundle => {
+	function outputFromBundle(bundle) {
 		bundle.childBundles.forEach(entry => {
 			const exported = importFresh(entry.name)
 			const page = exported.__esModule ? exported.default : exported
@@ -56,13 +57,13 @@ module.exports = async ({ plugins = [] }) => {
 				throw new Error(`plugin for ${entryType} should output a string, Buffer, or ReadableStream`)
 			}
 		})
-	})
 
-	bundler.bundle()
+		return bundle
+	}
+
+	if(watch) {
+		bundler.on('bundled', outputFromBundle)
+	}
+
+	return outputFromBundle(await bundler.bundle())
 }
-
-module === require.main && module.exports({
-	plugins: [
-		require('@loeb/mdx')
-	]
-})

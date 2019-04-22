@@ -5,7 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "athloi exec npm install"
+    "postinstall": "athloi exec npm install",
+    "start": "cd packages/test ; npx loeb"
   },
   "repository": {
     "type": "git",
