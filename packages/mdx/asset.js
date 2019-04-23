@@ -13,7 +13,7 @@ class MDXAsset extends Asset {
 			['.mdxrc', 'mdx.config.js', 'package.json'],
 			{packageKey: 'mdx'}
 		)
-		const compiled = await mdx(this.contents, config)
+		const compiled = mdx.sync(this.contents, config)
 		const fullCode = `/* @jsx mdx */
 import { React, mdx } from '@loeb/mdx/alias' // from 'react'
 ${compiled}

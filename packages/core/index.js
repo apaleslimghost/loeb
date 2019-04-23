@@ -1,69 +1,94 @@
-const Bundler = require('parcel-bundler')
-const importFresh = require('import-fresh')
+const webpack = require('webpack')
+const merge = require('webpack-merge')
 const path = require('path')
+const chokidar = require('chokidar')
+const importFresh = require('import-fresh')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
 
 module.exports = async ({ watch = true, plugins = [] }) => {
-	const bundler = new Bundler('pages/**/*', {
-		target: 'node',
-		autoinstall: false,
-		hmr: false,
-		sourceMaps: false,
-		watch,
-	})
+	const entries = new Set()
+	let ready = false
+	const watcher = chokidar.watch('./pages/**/*')
 
-	plugins.forEach(plugin => {
-		if(plugin.parcel) {
-			plugin.parcel(bundler)
-		}
-	})
+	function build() {
+		if(ready) {
+			const compiler = webpack(merge.smart({
+				entry: Array.from(entries).reduce((entry, key) => ({
+					...entry,
+					[key]: './' + key
+				}), {}),
+				target: 'node',
+				mode: 'development',
+				watch: true,
+				devtool: false,
+				output: {
+					libraryTarget: 'commonjs',
+					path: path.resolve(process.cwd(), '.cache')
+				}
+			}, ...plugins.map(plugin => plugin.webpack)))
+			
+			compiler.run((err, stats) => {
+				if(err) console.error(err)
 
-	function outputFromBundle(bundle) {
-		bundle.childBundles.forEach(entry => {
-			const exported = importFresh(entry.name)
-			const page = exported.__esModule ? exported.default : exported
+				const {assetsByChunkName} = stats.toJson()
+				Object.keys(assetsByChunkName).forEach(entry => {
+					const asset = path.resolve(process.cwd(), '.cache', assetsByChunkName[entry])
+					const page = importFresh(asset).default
 
-			const entryType = path.extname(
-				entry.entryAsset.name
-			).slice(1)
+					const entryType = path.extname(entry).slice(1)
 
-			const targetPath = path.join(
-				'site',
-				entry.entryAsset.relativeName.replace(new RegExp(`\\.${entryType}$`), '.html')
-			)
-
-			mkdirp.sync(
-				path.dirname(targetPath)
-			)
-
-			const plugin = plugins.find(plugin => plugin.type === entryType)
-
-			if(!plugin) {
-				throw new Error(`no plugin to handle page pages/${entry.entryAsset.relativeName}`)
-			}
-
-			const output = plugin.output(page)
-
-			if(output.pipe) {
-				output.pipe(
-					fs.createWriteStream(
-						targetPath,
+					const targetPath = path.join(
+						'site',
+						entry.replace(new RegExp(`${entryType}$`), 'html')
 					)
-				)
-			} else if(typeof output === string || Buffer.isBuffer(output)) {
-				fs.writeFileSync(targetPath, output)
-			} else {
-				throw new Error(`plugin for ${entryType} should output a string, Buffer, or ReadableStream`)
-			}
-		})
 
-		return bundle
+					mkdirp.sync(
+						path.dirname(targetPath)
+					)
+
+					const plugin = plugins.find(plugin => plugin.type === entryType)
+
+					if(!plugin) {
+						throw new Error(`no plugin to handle page ${entry}`)
+					}
+
+					const output = plugin.render(page)
+
+					if(output.pipe) {
+						output.pipe(
+							fs.createWriteStream(
+								targetPath,
+							)
+						)
+					} else if(typeof output === string || Buffer.isBuffer(output)) {
+						fs.writeFileSync(targetPath, output)
+					} else {
+						throw new Error(`plugin for ${entryType} should output a string, Buffer, or ReadableStream`)
+					}
+				})
+			})
+		}
 	}
 
-	if(watch) {
-		bundler.on('bundled', outputFromBundle)
-	}
+	watcher.on('ready', () => {
+		ready = true
+		build()
+	})
 
-	return outputFromBundle(await bundler.bundle())
+	watcher.on('add', path => {
+		entries.add(path)
+		build()
+	})
+
+	watcher.on('unlink', path => {
+		entries.delete(path)
+		build()
+	})
+
+	watcher.on('change', build)
+
+	// compiler.watch({}, (err, stats) => {
+	// 	console.log(err, stats)
+	// })
 }
