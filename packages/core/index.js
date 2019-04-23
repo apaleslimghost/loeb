@@ -30,10 +30,12 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 				filename: path.basename(entry) + '.js'
 			}
 
-			const compiler = webpack(merge.smart(commonOptions, {
+			const config = merge.smart(commonOptions, {
 				entry: `./${entry}`,
 				output
-			}, ...plugins.map(plugin => plugin.webpack)))
+			}, ...plugins.map(plugin => plugin.webpack))
+
+			const compiler = webpack(config)
 
 			compilers.set(entry, compiler)
 			compiler.watcher = compiler.watch({}, (err, stats) => {
@@ -56,7 +58,7 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 					path.dirname(targetPath)
 				)
 
-				const plugin = plugins.find(plugin => plugin.type === entryType)
+				const plugin = plugins.find(plugin => entry.match(plugin.test))
 
 				if(!plugin) {
 					throw new Error(`no plugin to handle page ${entry}`)

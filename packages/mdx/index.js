@@ -1,39 +1,25 @@
-const React = require('react')
-const {renderToStaticNodeStream} = require('react-dom/server')
+const react = require('@loeb/react')
 
-exports.type = 'mdx'
+exports.test = /\.mdx?$/
 
 exports.webpack = {
 	module: {
 		rules: [
 			{
-				test: /\.mdx?$/,
+				test: exports.test,
 				use: [
-					{
-						loader: require.resolve('babel-loader'),
-						options: {
-							presets: [
-								[require.resolve('@babel/preset-env'), {
-									targets: {
-										node: 'current'
-									}
-								}],
-								require.resolve('@babel/preset-react')
-							]
-						}
-					},
+					react.webpack.module.rules[0].use[0],
 					require.resolve('@mdx-js/loader'),
 				]
 			}
 		 ]
 	},
-	externals: {
-		'@mdx-js/react': {commonjs: require.resolve('@mdx-js/react')},
-		'react': {commonjs: require.resolve('react')},
+	externals: react.webpack.externals,
+	resolve: {
+		alias: {
+			'@mdx-js/react': require.resolve('@mdx-js/react')
+		}
 	}
 }
 
-exports.render = Component => {
-	const element = React.createElement(Component)
-	return renderToStaticNodeStream(element)
-}
+exports.render = react.render
