@@ -11,6 +11,7 @@
   "dependencies": {
     "@loeb/core": "file:../core",
     "@loeb/mdx": "file:../mdx",
+    "@loeb/react": "file:../react",
     "yargs": "^13.2.2"
   }
 }
