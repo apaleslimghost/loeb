@@ -50,20 +50,23 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 
 			compilers.set(entry, compiler)
 			compiler.watcher = compiler.watch({}, async (error, stats) => {
-				const entryType = path.extname(entry).slice(1)
-				const targetPath = path.join(
-					'site',
-					path.relative('pages', entry).replace(new RegExp(`${entryType}$`), 'html')
-				)
-
-				const asset = path.resolve(output.path, output.filename)
 
 				spinners.log(entry, {
-					message: `bundled ${entry} → ${targetPath} (${Date.now() - start}ms), rendering...`
+					message: `bundled ${entry} (${Date.now() - start}ms), rendering...`
 				})
 
 				try {
-					const page = importFresh(asset).default
+					const asset = path.resolve(output.path, output.filename)
+					const {default: page, ...pageProperties} = importFresh(asset)
+
+					const entryType = path.extname(entry).slice(1)
+					const targetPath = path.join(
+						'site',
+						pageProperties.slug
+							? pageProperties.slug + (pageProperties.slug.endsWith('.html') ? '' : '/index.html')
+							: path.relative('pages', entry).replace(new RegExp(`${entryType}$`), 'html')
+					)
+
 					await mkdirp(
 						path.dirname(targetPath)
 					)
