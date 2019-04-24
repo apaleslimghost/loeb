@@ -106,7 +106,6 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 	})
 
 	watcher.on('unlink', path => {
-		console.log(compilers)
 		const compiler = compilers.get(path)
 		compilers.delete(path)
 		compiler.watcher.close()
