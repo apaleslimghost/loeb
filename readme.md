@@ -8,4 +8,7 @@ to think about:
 - [x] slugs/output paths
 - [ ] data/promises
 - [ ] assets & public files
+- [ ] dev server
+- [ ] command line arguments
+- [ ] more plugins
 - [ ] dynamically generated pages

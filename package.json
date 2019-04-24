@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "athloi exec npm install",
-    "start": "cd packages/test ; npx loeb"
+    "start": "cd packages/test ; npx loeb",
+    "publish-packages": "p() { athloi version $1 && athloi publish -- --access=public } ; p"
   },
   "repository": {
     "type": "git",
