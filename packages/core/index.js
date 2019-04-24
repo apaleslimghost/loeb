@@ -3,8 +3,10 @@ const merge = require('webpack-merge')
 const path = require('path')
 const chokidar = require('chokidar')
 const importFresh = require('import-fresh')
-const fs = require('fs')
-const mkdirp = require('mkdirp')
+const fs = require('mz/fs')
+const mkdirp = require('mkdirp-promise')
+const streamToPromise = require('stream-to-promise')
+const Spinners = require('./spinners')
 
 const commonOptions = {
 	target: 'node',
@@ -22,6 +24,7 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 	const watcher = chokidar.watch('./pages/**/*')
 
 	const compilers = new Map()
+	const spinners = new Spinners()
 
 	watcher.on('add', entry => {
 		if(!compilers.has(entry)) {
@@ -36,46 +39,67 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 			}, ...plugins.map(plugin => plugin.webpack))
 
 			const compiler = webpack(config)
+			let start = Date.now()
+
+			compiler.hooks.watchRun.tap('loebSpinner', () => {
+				start = Date.now()
+				spinners.log(entry, {
+					message: `building ${entry}...`
+				})
+			})
 
 			compilers.set(entry, compiler)
-			compiler.watcher = compiler.watch({}, (err, stats) => {
-				if(err) console.error(err)
-				console.log(stats.toString({
-					colors: true
-				}) + '\n')
-
-				const asset = path.resolve(output.path, output.filename)
-				const page = importFresh(asset).default
-
+			compiler.watcher = compiler.watch({}, async (error, stats) => {
 				const entryType = path.extname(entry).slice(1)
-
 				const targetPath = path.join(
 					'site',
-					entry.replace(new RegExp(`${entryType}$`), 'html')
+					path.relative('pages', entry).replace(new RegExp(`${entryType}$`), 'html')
 				)
 
-				mkdirp.sync(
-					path.dirname(targetPath)
-				)
+				const asset = path.resolve(output.path, output.filename)
 
-				const plugin = plugins.find(plugin => entry.match(plugin.test))
+				spinners.log(entry, {
+					message: `bundled ${entry} → ${targetPath} (${Date.now() - start}ms), rendering...`
+				})
 
-				if(!plugin) {
-					throw new Error(`no plugin to handle page ${entry}`)
-				}
-
-				const rendered = plugin.render(page)
-
-				if(rendered.pipe) {
-					rendered.pipe(
-						fs.createWriteStream(
-							targetPath,
-						)
+				try {
+					const page = importFresh(asset).default
+					await mkdirp(
+						path.dirname(targetPath)
 					)
-				} else if(typeof rendered === 'string' || Buffer.isBuffer(rendered)) {
-					fs.writeFileSync(targetPath, rendered)
-				} else {
-					throw new Error(`plugin for ${entryType} should output a string, Buffer, or ReadableStream`)
+
+					const plugin = plugins.find(plugin => entry.match(plugin.test))
+
+					if(!plugin) {
+						throw new Error(`no plugin to handle page ${entry}`)
+					}
+
+					const rendered = plugin.render(page)
+
+					if(rendered.pipe) {
+						rendered.pipe(
+							fs.createWriteStream(
+								targetPath,
+							)
+						)
+
+						await streamToPromise(rendered)
+					} else if(typeof rendered === 'string' || Buffer.isBuffer(rendered)) {
+						await fs.writeFile(targetPath, rendered)
+					} else {
+						throw new Error(`plugin for ${entryType} should output a string, Buffer, or ReadableStream`)
+					}
+
+					spinners.log(entry, {
+						status: 'done',
+						message: `rendered ${entry} → ${targetPath} (${Date.now() - start}ms)`
+					})
+				} catch(error) {
+					spinners.log(entry, {
+						status: 'fail',
+						error,
+						message: `${entry} failed`
+					})
 				}
 			})
 		}
