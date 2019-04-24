@@ -4,7 +4,7 @@
 
 to think about:
 
-- [ ] layouts/wrappers
+- [x] layouts/wrappers
 - [x] slugs/output paths
 - [ ] data/promises
 - [ ] assets & public files

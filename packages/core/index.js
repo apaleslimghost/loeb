@@ -50,7 +50,6 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 
 			compilers.set(entry, compiler)
 			compiler.watcher = compiler.watch({}, async (error, stats) => {
-
 				spinners.log(entry, {
 					message: `bundled ${entry} (${Date.now() - start}ms), rendering...`
 				})
@@ -77,7 +76,14 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 						throw new Error(`no plugin to handle page ${entry}`)
 					}
 
-					const rendered = plugin.render(page)
+					const rendered = plugin.render(
+						pageProperties.layout
+							? props => pageProperties.layout({
+								children: page(props),
+								...pageProperties
+							})
+							: page
+					)
 
 					if(rendered.pipe) {
 						rendered.pipe(
