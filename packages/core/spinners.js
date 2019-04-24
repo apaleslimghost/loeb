@@ -12,6 +12,8 @@ const renderSymbol = spinner => {
 			return colour.green.bold('✓')
 		case 'fail': 
 			return colour.red.bold('✗')
+		case 'info': 
+			return colour.blue.bold('ℹ︎')
 	}
 }
 

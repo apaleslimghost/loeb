@@ -105,9 +105,36 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 		}
 	})
 
-	watcher.on('unlink', path => {
-		const compiler = compilers.get(path)
-		compilers.delete(path)
-		compiler.watcher.close()
+	watcher.on('unlink', entry => {
+		const compiler = compilers.get(entry)
+		compilers.delete(entry)
+		spinners.log(entry, {
+			message: `${entry} deleted, stopping compiler`
+		})
+
+		const entryType = path.extname(entry).slice(1)
+		const targetPath = path.join(
+			'site',
+			path.relative('pages', entry).replace(new RegExp(`${entryType}$`), 'html')
+		)
+
+		compiler.watcher.close(async () => {
+			try {
+				if(await fs.exists(targetPath)) {
+					await fs.unlink(targetPath)
+				}
+
+				spinners.log(entry, {
+					status: 'info',
+					message: `${entry} deleted`
+				})
+			} catch(error) {
+				spinners.log(entry, {
+					status: 'fail',
+					error,
+					message: `${entry} deleted`
+				})
+			}
+		})
 	})
 }
