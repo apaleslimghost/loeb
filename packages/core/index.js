@@ -75,10 +75,17 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 					)
 
 					await Promise.all(copyAssets.map(async asset => {
+						spinners.log(asset.name, {
+							message: `copying asset ${asset.name}`
+						})
 						const assetOutputPath = path.join(output.path, asset.name)
 						const assetTargetPath = path.join('site', asset.name)
 						await mkdirp(path.dirname(assetTargetPath))
 						await fs.copyFile(assetOutputPath, assetTargetPath)
+						spinners.log(asset.name, {
+							status: 'done',
+							message: `copied asset ${asset.name}`
+						})
 					}))
 
 					const plugin = plugins.find(plugin => entry.match(plugin.test))
