@@ -8,5 +8,6 @@ loeb({
 	plugins: argv.plugins ? argv.plugins.map(require) : [
 		require('@loeb/mdx'),
 		require('@loeb/react'),
+		require('@loeb/images'),
 	]
 })

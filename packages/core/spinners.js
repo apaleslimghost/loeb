@@ -50,6 +50,7 @@ class Spinners {
 				}, dots.interval)
 			}
 
+			spinner.tick.unref()
 			this.spinners.set(id, spinner)
 		}
 	}

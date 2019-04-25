@@ -29,8 +29,8 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 	watcher.on('add', entry => {
 		if(!compilers.has(entry)) {
 			const output = {
-				path: path.resolve(process.cwd(), '.cache', path.dirname(entry)),
-				filename: path.basename(entry) + '.js'
+				path: path.resolve(process.cwd(), '.cache'),
+				filename: `${path.basename(entry)}.[hash].js`
 			}
 
 			const config = merge.smart(commonOptions, {
@@ -55,8 +55,12 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 				})
 
 				try {
-					const asset = path.resolve(output.path, output.filename)
+					const {entrypoints, assets} = stats.toJson()
+					const entryAsset = entrypoints.main.assets[0]
+					const asset = path.resolve(output.path, entryAsset)
 					const {default: page, ...pageProperties} = importFresh(asset)
+
+					const copyAssets = assets.filter(asset => asset.name !== entryAsset)
 
 					const entryType = path.extname(entry).slice(1)
 					const targetPath = path.join(
@@ -69,6 +73,13 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 					await mkdirp(
 						path.dirname(targetPath)
 					)
+
+					await Promise.all(copyAssets.map(async asset => {
+						const assetOutputPath = path.join(output.path, asset.name)
+						const assetTargetPath = path.join('site', asset.name)
+						await mkdirp(path.dirname(assetTargetPath))
+						await fs.copyFile(assetOutputPath, assetTargetPath)
+					}))
 
 					const plugin = plugins.find(plugin => entry.match(plugin.test))
 
