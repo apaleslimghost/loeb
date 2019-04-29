@@ -9,6 +9,6 @@ loeb({
 		require('@loeb/mdx'),
 		require('@loeb/react'),
 		require('@loeb/images'),
-		// require('@loeb/css'),
+		require('@loeb/css'),
 	]
 })

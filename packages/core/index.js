@@ -55,7 +55,7 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 
 				try {
 					const {entrypoints, assets} = stats.toJson()
-					const entryAsset = entrypoints.main.assets[0]
+					const entryAsset = entrypoints.main.assets.find(asset => asset.endsWith('.js'))
 					const asset = path.resolve(output.path, entryAsset)
 					const {default: page, ...pageProperties} = importFresh(asset)
 
@@ -97,7 +97,8 @@ module.exports = async ({ watch = true, plugins = [] }) => {
 						pageProperties.layout
 							? props => pageProperties.layout({
 								children: page(props),
-								...pageProperties
+								assets,
+								page: pageProperties
 							})
 							: page
 					)
