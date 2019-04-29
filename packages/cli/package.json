@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@loeb/core": "file:../core",
+    "@loeb/css": "file:../css",
     "@loeb/images": "file:../images",
     "@loeb/mdx": "file:../mdx",
     "@loeb/react": "file:../react",

@@ -20,7 +20,6 @@ const commonOptions = {
 
 module.exports = async ({ watch = true, plugins = [] }) => {
 	const entries = new Set()
-	let ready = false
 	const watcher = chokidar.watch('./pages/**/*')
 
 	const compilers = new Map()
