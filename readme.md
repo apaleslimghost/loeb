@@ -10,7 +10,11 @@ to think about:
 - [ ] dev server
 - [ ] command line arguments
 - [ ] more plugins
-	- [ ] CSS (modules? styled-components)
+	- [x] CSS (modules? styled-components)
 - [ ] data/promises
 - [ ] dynamically generated pages
 - [ ] cleaning up old cache/site files
+  - [ ] clean-webpack-plugin
+- [ ] rearchitect
+  - [ ] use HtmlWebpackPlugin or roll your own (probably) to generate the HTML and just become a webpack plugin/config plugin munger
+  - [ ] separate named chunks for server/build bundle and clientside

@@ -7,6 +7,7 @@
   "scripts": {
     "postinstall": "athloi exec npm install",
     "start": "cd packages/test ; npx loeb",
+    "old": "cd packages/test ; node_modules/loeb/old.js",
     "publish-packages": "p() { athloi version $1 && athloi publish -- --access=public ; } ; p"
   },
   "repository": {

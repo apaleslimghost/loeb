@@ -1,5 +1,5 @@
 const React = require('react')
-const {renderToStaticNodeStream} = require('react-dom/server')
+const { renderToStaticNodeStream } = require('react-dom/server')
 
 exports.test = /\.jsx?$/
 
@@ -24,10 +24,10 @@ exports.webpack = {
 					},
 				]
 			}
-		 ]
+		]
 	},
 	externals: {
-		'react': {commonjs: require.resolve('react')},
+		'react': { commonjs2: require.resolve('react') },
 	}
 }
 
