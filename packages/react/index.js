@@ -1,5 +1,5 @@
 const React = require('react')
-const { renderToStaticNodeStream } = require('react-dom/server')
+const { renderToStaticMarkup } = require('react-dom/server')
 
 exports.test = /\.jsx?$/
 
@@ -33,5 +33,5 @@ exports.webpack = {
 
 exports.render = Component => {
 	const element = React.createElement(Component)
-	return renderToStaticNodeStream(element)
+	return renderToStaticMarkup(element)
 }

@@ -17,6 +17,8 @@ const SingleEntryPlugin = require('webpack/lib/SingleEntryPlugin')
 const WebpackOptionsApply = require('webpack/lib/WebpackOptionsApply')
 const WebpackOptionsDefaulter = require('webpack/lib/WebpackOptionsDefaulter')
 
+const FileWatcherPlugin = require('filewatcher-webpack-plugin')
+
 function extractHelperFilesFromCompilation(mainCompilation, childCompilation, filename, childEntryChunks) {
 	const helperAssetNames = childEntryChunks.map((entryChunk, index) => {
 		return mainCompilation.mainTemplate.hooks.assetPath.call(filename, {
@@ -30,11 +32,9 @@ function extractHelperFilesFromCompilation(mainCompilation, childCompilation, fi
 		delete mainCompilation.assets[helperFileName];
 	});
 
-	const helperContents = helperAssetNames.map((helperFileName) => {
-		return childCompilation.assets[helperFileName].source();
+	return helperAssetNames.map((helperFileName) => {
+		return childCompilation.assets[helperFileName].source()
 	});
-
-	return helperContents;
 }
 
 module.exports = async ({ plugins = [] }) => {
@@ -44,18 +44,28 @@ module.exports = async ({ plugins = [] }) => {
 		devtool: false,
 		mode: 'development',
 		output: {
+			path: path.resolve('site'),
 			filename: 'dummy.js'
-		}
+		},
+		plugins: [
+			// new FileWatcherPlugin({ watchFileRegex: './pages/**/*' })
+		]
 	},
 		...plugins.map(plugin => plugin.webpack)
 	))
 
-	compiler.hooks.make.tapAsync('loeb', (compilation, callback) => {
-		const filename = `.cache/child.js`
+	const childCompilers = new Map()
+
+	function getChildCompiler(entry, compilation) {
+		if (childCompilers.has(entry)) {
+			return childCompilers.get(entry)
+		}
+
 		const outputOptions = {
 			libraryTarget: 'commonjs2',
-			filename,
+			filename: `.cache/child.js`,
 		}
+
 		const child = compilation.createChildCompiler('loeb', outputOptions)
 		child.context = compiler.context
 
@@ -72,20 +82,56 @@ module.exports = async ({ plugins = [] }) => {
 		new NodeTemplatePlugin(outputOptions).apply(child);
 		new NodeTargetPlugin().apply(child);
 		new LibraryTemplatePlugin('', 'commonjs2').apply(child);
-		new SingleEntryPlugin(child.context, './pages/index.jsx', `loeb_idk`).apply(child)
+		new SingleEntryPlugin(child.context, entry, `loeb_idk`).apply(child)
 		new ExternalsPlugin(
 			outputOptions.libraryTarget,
 			compiler.options.externals
 		).apply(child);
 
+		childCompilers.set(entry, child)
+		return child
+	}
+
+	compiler.hooks.make.tapAsync('loeb', (compilation, callback) => {
+		const entry = './pages/index.jsx'
+		const child = getChildCompiler(entry, compilation)
+
 		child.runAsChild((err, entries, childCompilation) => {
-			extractHelperFilesFromCompilation(compilation, childCompilation, filename, entries).forEach(source => {
-				const { default: page } = requireFromString(source)
-				console.log(page)
+			extractHelperFilesFromCompilation(compilation, childCompilation, child.options.output.filename, entries).forEach(source => {
+				const { default: page, ...pageProperties } = requireFromString(source)
+				const entryType = path.extname(entry).slice(1)
+				const targetPath = pageProperties.slug
+					? pageProperties.slug + (pageProperties.slug.endsWith('.html') ? '' : '/index.html')
+					: path.relative('pages', entry).replace(new RegExp(`${entryType}$`), 'html')
+
+				const plugin = plugins.find(plugin => entry.match(plugin.test))
+
+				if (!plugin) {
+					throw new Error(`no plugin to handle page ${entry}`)
+				}
+
+				const rendered = plugin.render(
+					pageProperties.layout
+						? props => pageProperties.layout({
+							children: page(props),
+							assets,
+							page: pageProperties
+						})
+						: page
+				)
+
+				compilation.assets[targetPath] = {
+					source: () => rendered,
+					size: () => rendered.length,
+				}
 			})
 
 			callback()
 		})
+	})
+
+	compiler.hooks.emit.tap('loeb', (compilation) => {
+		delete compilation.assets['dummy.js']
 	})
 
 	compiler.run((err, compilation) => {
