@@ -61,9 +61,11 @@ module.exports = async ({ plugins = [] }) => {
 			return childCompilers.get(entry)
 		}
 
+		const chunkName = entry.replace(/[^a-z]/g, '-')
+
 		const outputOptions = {
 			libraryTarget: 'commonjs2',
-			filename: `.cache/child.js`,
+			filename: `${chunkName}.js`,
 		}
 
 		const child = compilation.createChildCompiler('loeb', outputOptions)
@@ -82,7 +84,7 @@ module.exports = async ({ plugins = [] }) => {
 		new NodeTemplatePlugin(outputOptions).apply(child);
 		new NodeTargetPlugin().apply(child);
 		new LibraryTemplatePlugin('', 'commonjs2').apply(child);
-		new SingleEntryPlugin(child.context, entry, `loeb_idk`).apply(child)
+		new SingleEntryPlugin(child.context, entry, chunkName).apply(child)
 		new ExternalsPlugin(
 			outputOptions.libraryTarget,
 			compiler.options.externals
@@ -94,21 +96,22 @@ module.exports = async ({ plugins = [] }) => {
 
 	compiler.hooks.make.tapAsync('loeb', (compilation, callback) => {
 		const entry = './pages/index.jsx'
+		const entryType = path.extname(entry).slice(1)
+
+		const plugin = plugins.find(plugin => entry.match(plugin.test))
+
+		if (!plugin) {
+			throw new Error(`no plugin to handle page ${entry}`)
+		}
+
 		const child = getChildCompiler(entry, compilation)
 
 		child.runAsChild((err, entries, childCompilation) => {
 			extractHelperFilesFromCompilation(compilation, childCompilation, child.options.output.filename, entries).forEach(source => {
 				const { default: page, ...pageProperties } = requireFromString(source)
-				const entryType = path.extname(entry).slice(1)
 				const targetPath = pageProperties.slug
 					? pageProperties.slug + (pageProperties.slug.endsWith('.html') ? '' : '/index.html')
 					: path.relative('pages', entry).replace(new RegExp(`${entryType}$`), 'html')
-
-				const plugin = plugins.find(plugin => entry.match(plugin.test))
-
-				if (!plugin) {
-					throw new Error(`no plugin to handle page ${entry}`)
-				}
 
 				const rendered = plugin.render(
 					pageProperties.layout

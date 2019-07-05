@@ -3,7 +3,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 exports.webpack = {
 	plugins: [
 		compiler => new MiniCssExtractPlugin({
-			filename: 'styles/[name].[contenthash].css',
+			filename: 'styles/[id].[contenthash].css',
 		}).apply(compiler),
 	],
 	module: {
