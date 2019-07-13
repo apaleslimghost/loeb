@@ -6,7 +6,7 @@ const importFresh = require('import-fresh')
 const fs = require('mz/fs')
 const mkdirp = require('mkdirp-promise')
 const streamToPromise = require('stream-to-promise')
-const Spinners = require('./spinners')
+const Komatsu = require('komatsu')
 const requireFromString = require('require-from-string')
 
 const NodeTemplatePlugin = require('webpack/lib/node/NodeTemplatePlugin')
@@ -124,7 +124,7 @@ module.exports = async ({ plugins = [] }) => {
 				pageProperties.layout
 					? props => pageProperties.layout({
 						children: page(props),
-						assets,
+						assets: Object.keys(compilation.assets),
 						page: pageProperties
 					})
 					: page
@@ -139,8 +139,12 @@ module.exports = async ({ plugins = [] }) => {
 
 	compiler.hooks.make.tapPromise('loeb', async (compilation, callback) => {
 		const files = await glob('./pages/**/*', { nodir: true })
-		console.log(files)
-		await Promise.all(files.map(file => buildPage(file, compilation)))
+		try {
+			await Promise.all(files.map(file => buildPage(file, compilation)))
+		} catch (e) {
+			console.error(e.stack)
+			throw e
+		}
 	})
 
 	compiler.hooks.emit.tap('loeb', (compilation) => {
