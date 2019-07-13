@@ -1,27 +1,50 @@
 {
-  "name": "loeb",
-  "private": true,
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "postinstall": "athloi exec npm install",
-    "start": "cd packages/test ; npx loeb",
-    "old": "cd packages/test ; node_modules/loeb/old.js",
-    "publish-packages": "p() { athloi version $1 && athloi publish -- --access=public ; } ; p"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/quarterto/loeb.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/quarterto/loeb/issues"
-  },
-  "homepage": "https://github.com/quarterto/loeb#readme",
-  "devDependencies": {
-    "@financial-times/athloi": "^1.0.0-beta.24"
-  }
+	"name": "loeb",
+	"private": true,
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"postinstall": "athloi exec npm install",
+		"start": "cd packages/test ; npx loeb",
+		"old": "cd packages/test ; node_modules/loeb/old.js",
+		"publish-packages": "p() { athloi version $1 && athloi publish -- --access=public ; } ; p"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/quarterto/loeb.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/quarterto/loeb/issues"
+	},
+	"homepage": "https://github.com/quarterto/loeb#readme",
+	"devDependencies": {
+		"@financial-times/athloi": "^1.0.0-beta.24",
+		"husky": "^2.3.0",
+		"prettier": "^1.17.0",
+		"eslint": "^5.16.0",
+		"@quarterto/eslint-config": "^1.4.0",
+		"@quarterto/prettier": "^1.1.0",
+		"lint-staged": "^8.1.7"
+	},
+	"eslintConfig": {
+		"extends": [
+			"@quarterto"
+		]
+	},
+	"prettier": "@quarterto/prettier",
+	"lint-staged": {
+		"*.{js,jsx,json}": [
+			"prettier --write",
+			"git add"
+		]
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	}
 }

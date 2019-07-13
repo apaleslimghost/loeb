@@ -13,22 +13,25 @@ exports.webpack = {
 						loader: require.resolve('babel-loader'),
 						options: {
 							presets: [
-								[require.resolve('@babel/preset-env'), {
-									targets: {
-										node: 'current'
-									}
-								}],
-								require.resolve('@babel/preset-react')
-							]
-						}
+								[
+									require.resolve('@babel/preset-env'),
+									{
+										targets: {
+											node: 'current',
+										},
+									},
+								],
+								require.resolve('@babel/preset-react'),
+							],
+						},
 					},
-				]
-			}
-		]
+				],
+			},
+		],
 	},
 	externals: {
-		'react': { commonjs2: require.resolve('react') },
-	}
+		react: { commonjs2: require.resolve('react') },
+	},
 }
 
 exports.render = Component => {

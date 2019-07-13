@@ -10,16 +10,16 @@ exports.webpack = {
 				use: [
 					react.webpack.module.rules[0].use[0],
 					require.resolve('@mdx-js/loader'),
-				]
-			}
-		 ]
+				],
+			},
+		],
 	},
 	externals: react.webpack.externals,
 	resolve: {
 		alias: {
-			'@mdx-js/react': require.resolve('@mdx-js/react')
-		}
-	}
+			'@mdx-js/react': require.resolve('@mdx-js/react'),
+		},
+	},
 }
 
 exports.render = react.render
