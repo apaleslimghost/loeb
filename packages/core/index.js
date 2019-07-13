@@ -7,6 +7,8 @@ const fs = require('mz/fs')
 const mkdirp = require('mkdirp-promise')
 const streamToPromise = require('stream-to-promise')
 const Komatsu = require('komatsu')
+const glob = require('glob-promise')
+const colours = require('ansi-colors')
 const requireFromString = require('require-from-string')
 
 const NodeTemplatePlugin = require('webpack/lib/node/NodeTemplatePlugin')
@@ -17,7 +19,6 @@ const SingleEntryPlugin = require('webpack/lib/SingleEntryPlugin')
 const WebpackOptionsApply = require('webpack/lib/WebpackOptionsApply')
 const WebpackOptionsDefaulter = require('webpack/lib/WebpackOptionsDefaulter')
 
-const glob = require('glob-promise')
 
 function extractHelperFilesFromCompilation(mainCompilation, childCompilation, filename, childEntryChunks) {
 	const helperAssetNames = childEntryChunks.map((entryChunk, index) => {
@@ -61,6 +62,7 @@ module.exports = async ({ plugins = [] }) => {
 		...plugins.map(plugin => plugin.webpack)
 	))
 
+	const spinners = new Komatsu()
 	const childCompilers = new Map()
 
 	function getChildCompiler(entry, compilation) {
@@ -139,12 +141,14 @@ module.exports = async ({ plugins = [] }) => {
 
 	compiler.hooks.make.tapPromise('loeb', async (compilation, callback) => {
 		const files = await glob('./pages/**/*', { nodir: true })
-		try {
-			await Promise.all(files.map(file => buildPage(file, compilation)))
-		} catch (e) {
-			console.error(e.stack)
-			throw e
-		}
+		await Promise.all(
+			files.map(
+				file => spinners.logPromise(
+					buildPage(file, compilation),
+					colours.grey(`building page ${colours.cyan(file)}`)
+				)
+			)
+		)
 	})
 
 	compiler.hooks.emit.tap('loeb', (compilation) => {
