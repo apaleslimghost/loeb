@@ -138,8 +138,9 @@ module.exports = async ({ plugins = [] }) => {
 	}
 
 	compiler.hooks.make.tapPromise('loeb', async (compilation, callback) => {
-		const entry = './pages/index.jsx'
-		await buildPage(entry, compilation)
+		const files = await glob('./pages/**/*', { nodir: true })
+		console.log(files)
+		await Promise.all(files.map(file => buildPage(file, compilation)))
 	})
 
 	compiler.hooks.emit.tap('loeb', (compilation) => {
