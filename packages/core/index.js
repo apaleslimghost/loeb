@@ -17,7 +17,7 @@ const SingleEntryPlugin = require('webpack/lib/SingleEntryPlugin')
 const WebpackOptionsApply = require('webpack/lib/WebpackOptionsApply')
 const WebpackOptionsDefaulter = require('webpack/lib/WebpackOptionsDefaulter')
 
-const FileWatcherPlugin = require('filewatcher-webpack-plugin')
+const glob = require('glob-promise')
 
 function extractHelperFilesFromCompilation(mainCompilation, childCompilation, filename, childEntryChunks) {
 	const helperAssetNames = childEntryChunks.map((entryChunk, index) => {
@@ -37,6 +37,16 @@ function extractHelperFilesFromCompilation(mainCompilation, childCompilation, fi
 	});
 }
 
+const runAsChild = child => new Promise((resolve, reject) => {
+	child.runAsChild((err, entries, childCompilation) => {
+		if (err) {
+			reject(err)
+		} else {
+			resolve({ entries, childCompilation })
+		}
+	})
+})
+
 module.exports = async ({ plugins = [] }) => {
 	const compiler = webpack(merge.smart({
 		target: 'node',
@@ -47,9 +57,6 @@ module.exports = async ({ plugins = [] }) => {
 			path: path.resolve('site'),
 			filename: 'dummy.js'
 		},
-		plugins: [
-			// new FileWatcherPlugin({ watchFileRegex: './pages/**/*' })
-		]
 	},
 		...plugins.map(plugin => plugin.webpack)
 	))
@@ -94,8 +101,7 @@ module.exports = async ({ plugins = [] }) => {
 		return child
 	}
 
-	compiler.hooks.make.tapAsync('loeb', (compilation, callback) => {
-		const entry = './pages/index.jsx'
+	async function buildPage(entry, compilation) {
 		const entryType = path.extname(entry).slice(1)
 
 		const plugin = plugins.find(plugin => entry.match(plugin.test))
@@ -106,31 +112,34 @@ module.exports = async ({ plugins = [] }) => {
 
 		const child = getChildCompiler(entry, compilation)
 
-		child.runAsChild((err, entries, childCompilation) => {
-			extractHelperFilesFromCompilation(compilation, childCompilation, child.options.output.filename, entries).forEach(source => {
-				const { default: page, ...pageProperties } = requireFromString(source)
-				const targetPath = pageProperties.slug
-					? pageProperties.slug + (pageProperties.slug.endsWith('.html') ? '' : '/index.html')
-					: path.relative('pages', entry).replace(new RegExp(`${entryType}$`), 'html')
+		const { entries, childCompilation } = await runAsChild(child)
 
-				const rendered = plugin.render(
-					pageProperties.layout
-						? props => pageProperties.layout({
-							children: page(props),
-							assets,
-							page: pageProperties
-						})
-						: page
-				)
+		extractHelperFilesFromCompilation(compilation, childCompilation, child.options.output.filename, entries).forEach(source => {
+			const { default: page, ...pageProperties } = requireFromString(source)
+			const targetPath = pageProperties.slug
+				? pageProperties.slug + (pageProperties.slug.endsWith('.html') ? '' : '/index.html')
+				: path.relative('pages', entry).replace(new RegExp(`${entryType}$`), 'html')
 
-				compilation.assets[targetPath] = {
-					source: () => rendered,
-					size: () => rendered.length,
-				}
-			})
+			const rendered = plugin.render(
+				pageProperties.layout
+					? props => pageProperties.layout({
+						children: page(props),
+						assets,
+						page: pageProperties
+					})
+					: page
+			)
 
-			callback()
+			compilation.assets[targetPath] = {
+				source: () => rendered,
+				size: () => rendered.length,
+			}
 		})
+	}
+
+	compiler.hooks.make.tapPromise('loeb', async (compilation, callback) => {
+		const entry = './pages/index.jsx'
+		await buildPage(entry, compilation)
 	})
 
 	compiler.hooks.emit.tap('loeb', (compilation) => {
