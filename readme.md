@@ -7,8 +7,8 @@ to think about:
 - [x] layouts/wrappers
 - [x] slugs/output paths
 - [x] assets & public files
-- [ ] dev server
-- [ ] command line arguments
+- [x] dev server
+- [x] command line arguments
 - [ ] more plugins
   - [x] CSS (modules? styled-components)
 - [ ] data/promises
@@ -17,5 +17,5 @@ to think about:
   - [ ] clean-webpack-plugin
 - [x] rearchitect
   - [x] use HtmlWebpackPlugin or roll your own (probably) to generate the HTML and just become a webpack plugin/config plugin munger
-  - [ ] separate named chunks for server/build bundle and clientside
+- [ ] separate named chunks for server/build bundle and clientside
 - [ ] HMR
