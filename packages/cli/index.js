@@ -8,7 +8,7 @@ const open = require('open')
 
 const { dependencies } = require('./package.json')
 const defaultPlugins = Object.keys(dependencies).filter(
-	dependency => dependency.startsWith('@loeb/') && !dependency === '@loeb/core',
+	dependency => dependency.startsWith('@loeb/') && dependency !== '@loeb/core',
 )
 
 const initLoeb = argv =>
@@ -16,7 +16,7 @@ const initLoeb = argv =>
 		plugins: [
 			loeb({
 				...argv,
-				plugins: argv.plugins ? argv.plugins.map(require) : defaultPlugins,
+				plugins: (argv.plugins || defaultPlugins).map(require),
 			}),
 		],
 	})

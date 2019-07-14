@@ -112,7 +112,9 @@ module.exports = ({ plugins = [] }) => ({
 		async function buildPage(entry, compilation) {
 			const entryType = path.extname(entry).slice(1)
 
-			const plugin = plugins.find(plugin => entry.match(plugin.test))
+			const plugin = plugins.find(
+				plugin => plugin.test && entry.match(plugin.test),
+			)
 
 			if (!plugin) {
 				throw new Error(`no plugin to handle page ${entry}`)
