@@ -6,19 +6,17 @@ const webpackMiddleware = require('webpack-dev-middleware')
 const express = require('express')
 const open = require('open')
 
+const { dependencies } = require('./package.json')
+const defaultPlugins = Object.keys(dependencies).filter(
+	dependency => dependency.startsWith('@loeb/') && !dependency === '@loeb/core',
+)
+
 const initLoeb = argv =>
 	webpack({
 		plugins: [
 			loeb({
 				...argv,
-				plugins: argv.plugins
-					? argv.plugins.map(require)
-					: [
-							require('@loeb/mdx'),
-							require('@loeb/react'),
-							require('@loeb/images'),
-							require('@loeb/css'),
-					  ],
+				plugins: argv.plugins ? argv.plugins.map(require) : defaultPlugins,
 			}),
 		],
 	})
@@ -43,7 +41,7 @@ require('yargs')
 					logLevel: 'silent',
 				}),
 			)
-			const server = app.listen(() => {
+			const server = app.listen(argv.port, () => {
 				const { port } = server.address()
 				open(`http://localhost:${port}`)
 			})
