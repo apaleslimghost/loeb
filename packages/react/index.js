@@ -1,5 +1,5 @@
 const React = require('react')
-const { renderToStaticMarkup } = require('react-dom/server')
+const { renderToString, renderToStaticMarkup } = require('react-dom/server')
 
 exports.test = /\.jsx?$/
 
@@ -34,7 +34,8 @@ exports.webpack = {
 	},
 }
 
-exports.render = Component => {
+exports.render = (Component, { isStatic }) => {
 	const element = React.createElement(Component)
-	return renderToStaticMarkup(element)
+	const markup = (isStatic ? renderToStaticMarkup : renderToString)(element)
+	return '<!doctype html>' + markup
 }

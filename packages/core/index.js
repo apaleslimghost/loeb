@@ -58,11 +58,11 @@ const applyPlugins = (compiler, plugins) =>
 		}
 	})
 
-module.exports = ({ plugins = [] }) => ({
+module.exports = ({ plugins = [], isStatic = true }) => ({
 	apply(compiler) {
 		const extraOptions = merge.smart(
 			{
-				target: 'node',
+				target: 'web',
 				entry: require.resolve('./empty.js'),
 				devtool: false,
 				mode: 'development',
@@ -92,6 +92,9 @@ module.exports = ({ plugins = [] }) => ({
 				filename: `${chunkName}.js`,
 			}
 
+			// add page as entry to parent compiler for client bundle
+			new SingleEntryPlugin(compiler.context, entry, chunkName).apply(compiler)
+
 			const child = compilation.createChildCompiler('loeb', outputOptions)
 			child.context = compiler.context
 			applyPlugins(child, compiler.options.plugins)
@@ -120,14 +123,14 @@ module.exports = ({ plugins = [] }) => ({
 				throw new Error(`no plugin to handle page ${entry}`)
 			}
 
-			const child = getChildCompiler(entry, compilation)
+			const childCompiler = getChildCompiler(entry, compilation)
 
-			const { entries, childCompilation } = await runAsChild(child)
+			const { entries, childCompilation } = await runAsChild(childCompiler)
 
 			extractHelperFilesFromCompilation(
 				compilation,
 				childCompilation,
-				child.options.output.filename,
+				childCompiler.options.output.filename,
 				entries,
 			).forEach(source => {
 				const { default: page, ...pageProperties } = requireFromString(source)
@@ -147,6 +150,7 @@ module.exports = ({ plugins = [] }) => ({
 									page: pageProperties,
 								})
 						: page,
+					{ isStatic },
 				)
 
 				compilation.assets[targetPath] = {

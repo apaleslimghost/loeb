@@ -4,6 +4,7 @@ const loeb = require('@loeb/core')
 const webpack = require('webpack')
 const webpackMiddleware = require('webpack-dev-middleware')
 const express = require('express')
+const colours = require('ansi-colors')
 const open = require('open')
 
 const { dependencies } = require('./package.json')
@@ -34,7 +35,7 @@ require('yargs')
 		'watch and serve the site',
 		() => {},
 		argv => {
-			const compiler = initLoeb(argv)
+			const compiler = initLoeb({ ...argv, isStatic: false })
 			const app = express()
 			app.use(
 				webpackMiddleware(compiler, {
@@ -43,7 +44,13 @@ require('yargs')
 			)
 			const server = app.listen(argv.port, () => {
 				const { port } = server.address()
-				open(`http://localhost:${port}`)
+				const url = `http://localhost:${port}`
+				console.log(
+					` ${colours.magenta('ö')} listening at ${colours.blue.underline(
+						url,
+					)}`,
+				)
+				open(url)
 			})
 		},
 	)
