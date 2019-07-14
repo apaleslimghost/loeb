@@ -1,19 +1,19 @@
 {
-  "name": "@loeb/mdx",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@loeb/react": "file:../react",
-    "@mdx-js/loader": "^1.0.10",
-    "@mdx-js/mdx": "^1.0.10",
-    "@mdx-js/react": "^1.0.6"
-  },
-  "devDependencies": {}
+	"name": "@loeb/mdx",
+	"version": "1.0.0-alpha.1",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@loeb/react": "^1.0.0-alpha.1",
+		"@mdx-js/loader": "^1.0.10",
+		"@mdx-js/mdx": "^1.0.10",
+		"@mdx-js/react": "^1.0.6"
+	},
+	"devDependencies": {}
 }

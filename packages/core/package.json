@@ -1,22 +1,22 @@
 {
-  "name": "@loeb/core",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "ansi-colors": "^4.1.1",
-    "assign-deep": "^1.0.1",
-    "glob": "^7.1.4",
-    "glob-promise": "^3.4.0",
-    "komatsu": "^1.3.0",
-    "require-from-string": "^2.0.2",
-    "webpack": "^4.35.3",
-    "webpack-merge": "^4.2.1"
-  }
+	"name": "@loeb/core",
+	"version": "1.0.0-alpha.1",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"ansi-colors": "^4.1.1",
+		"assign-deep": "^1.0.1",
+		"glob": "^7.1.4",
+		"glob-promise": "^3.4.0",
+		"komatsu": "^1.3.0",
+		"require-from-string": "^2.0.2",
+		"webpack": "^4.35.3",
+		"webpack-merge": "^4.2.1"
+	}
 }

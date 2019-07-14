@@ -1,6 +1,6 @@
 {
 	"name": "loeb",
-	"version": "1.0.0",
+	"version": "1.0.0-alpha.1",
 	"description": "",
 	"bin": "index.js",
 	"scripts": {
@@ -9,11 +9,11 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@loeb/core": "file:../core",
-		"@loeb/css": "file:../css",
-		"@loeb/images": "file:../images",
-		"@loeb/mdx": "file:../mdx",
-		"@loeb/react": "file:../react",
+		"@loeb/core": "^1.0.0-alpha.1",
+		"@loeb/css": "^1.0.0-alpha.1",
+		"@loeb/images": "^1.0.0-alpha.1",
+		"@loeb/mdx": "^1.0.0-alpha.1",
+		"@loeb/react": "^1.0.0-alpha.1",
 		"express": "^4.17.1",
 		"opn": "^6.0.0",
 		"webpack": "^4.35.3",
