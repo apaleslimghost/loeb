@@ -4,7 +4,7 @@ const loeb = require('@loeb/core')
 const webpack = require('webpack')
 const webpackMiddleware = require('webpack-dev-middleware')
 const express = require('express')
-const open = require('opn')
+const open = require('open')
 
 const initLoeb = argv =>
 	webpack({
