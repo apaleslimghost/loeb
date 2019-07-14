@@ -130,7 +130,7 @@ module.exports = ({ plugins = [] }) => ({
 			).forEach(source => {
 				const { default: page, ...pageProperties } = requireFromString(source)
 				const targetPath = pageProperties.slug
-					? pageProperties.slug +
+					? pageProperties.slug.replace(/^\//, '') +
 					  (pageProperties.slug.endsWith('.html') ? '' : '/index.html')
 					: path
 							.relative('pages', entry)

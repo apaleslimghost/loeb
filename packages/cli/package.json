@@ -1,20 +1,24 @@
 {
-  "name": "loeb",
-  "version": "1.0.0",
-  "description": "",
-  "bin": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@loeb/core": "file:../core",
-    "@loeb/css": "file:../css",
-    "@loeb/images": "file:../images",
-    "@loeb/mdx": "file:../mdx",
-    "@loeb/react": "file:../react",
-    "webpack": "^4.35.3",
-    "yargs": "^13.2.2"
-  }
+	"name": "loeb",
+	"version": "1.0.0",
+	"description": "",
+	"bin": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@loeb/core": "file:../core",
+		"@loeb/css": "file:../css",
+		"@loeb/images": "file:../images",
+		"@loeb/mdx": "file:../mdx",
+		"@loeb/react": "file:../react",
+		"express": "^4.17.1",
+		"opn": "^6.0.0",
+		"webpack": "^4.35.3",
+		"webpack-dev-middleware": "^3.7.0",
+		"webpack-dev-server": "^3.7.2",
+		"yargs": "^13.2.4"
+	}
 }
