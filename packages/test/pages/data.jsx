@@ -9,5 +9,10 @@ const assets = context.keys().map(context)
 
 export default assets.map(asset => ({
 	slug: `/assets/${path.basename(asset).match(/^(.+?)\./)[1]}`,
-	render: () => <img src={asset} />,
+	getData: async () => ({ title: 'hello' }),
+	render: ({ title }) => (
+		<>
+			<h2>{title}</h2> <img src={asset} />
+		</>
+	),
 }))

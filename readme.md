@@ -11,8 +11,8 @@ to think about:
 - [x] command line arguments
 - [ ] more plugins
   - [x] CSS (modules? styled-components)
-- [ ] data/promises
-- [ ] dynamically generated pages
+- [x] data/promises
+- [x] dynamically generated pages
 - [ ] cleaning up old cache/site files
   - [ ] clean-webpack-plugin
 - [x] rearchitect
