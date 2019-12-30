@@ -14,6 +14,8 @@ const SingleEntryPlugin = require('webpack/lib/SingleEntryPlugin')
 const WebpackOptionsApply = require('webpack/lib/WebpackOptionsApply')
 const WebpackOptionsDefaulter = require('webpack/lib/WebpackOptionsDefaulter')
 
+const VirtualModulePlugin = require('webpack-virtual-modules')
+
 function extractHelperFilesFromCompilation(
 	mainCompilation,
 	childCompilation,
@@ -60,16 +62,27 @@ const applyPlugins = (compiler, plugins) =>
 
 module.exports = ({ plugins = [], isStatic = true }) => ({
 	apply(compiler) {
+		const pagesPromise = glob('./pages/**/*', { nodir: true })
+		const virtualModules = new VirtualModulePlugin()
+
 		const extraOptions = merge.smart(
 			{
 				target: 'web',
-				entry: require.resolve('./empty.js'),
+				entry: async () => {
+					const pages = await pagesPromise
+					return pages.reduce((chunks, page) => {
+						const chunkName = page.replace(/[^a-z]/gi, '-')
+						const virtualPage = page.replace(/^\.\//, './virtual/')
+						return { ...chunks, [chunkName]: virtualPage }
+					}, {})
+				},
 				devtool: false,
 				mode: 'development',
 				output: {
 					path: path.resolve('site'),
-					filename: 'dummy.js',
+					filename: 'scripts/[name].[hash].js',
 				},
+				plugins: [virtualModules],
 			},
 			...plugins.map(plugin => plugin.webpack),
 		)
@@ -91,9 +104,6 @@ module.exports = ({ plugins = [], isStatic = true }) => ({
 				libraryTarget: 'commonjs2',
 				filename: `${chunkName}.js`,
 			}
-
-			// add page as entry to parent compiler for client bundle
-			new SingleEntryPlugin(compiler.context, entry, chunkName).apply(compiler)
 
 			const child = compilation.createChildCompiler('loeb', outputOptions)
 			child.context = compiler.context
@@ -126,6 +136,9 @@ module.exports = ({ plugins = [], isStatic = true }) => ({
 			const childCompiler = getChildCompiler(entry, compilation)
 
 			const { entries, childCompilation } = await runAsChild(childCompiler)
+
+			const virtualPage = entry.replace(/^\.\//, './virtual/')
+			virtualModules.writeModule(virtualPage, 'module.exports = 5')
 
 			extractHelperFilesFromCompilation(
 				compilation,
@@ -161,19 +174,21 @@ module.exports = ({ plugins = [], isStatic = true }) => ({
 		}
 
 		compiler.hooks.make.tapPromise('loeb', async (compilation, callback) => {
-			const files = await glob('./pages/**/*', { nodir: true })
+			const pages = await pagesPromise
 			await Promise.all(
-				files.map(file =>
+				pages.map(page =>
 					spinners.logPromise(
-						buildPage(file, compilation),
-						colours.grey(`building page ${colours.cyan(file)}`),
+						buildPage(page, compilation),
+						colours.grey(`building page ${colours.cyan(page)}`),
 					),
 				),
 			)
 		})
 
-		compiler.hooks.emit.tap('loeb', compilation => {
-			delete compilation.assets['dummy.js']
+		// u wot m8
+		compiler.hooks.shouldEmit.tap('loeb', () => true)
+		compiler.hooks.failed.tap('loeb', error => {
+			console.log(error)
 		})
 	},
 })

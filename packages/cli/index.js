@@ -23,7 +23,12 @@ const initLoeb = argv =>
 	})
 
 require('yargs')
-	.command('build', 'build the site', () => {}, argv => initLoeb(argv).run())
+	.command(
+		'build',
+		'build the site',
+		() => {},
+		argv => initLoeb(argv).run(err => console.log(err)),
+	)
 	.command(
 		'watch',
 		'watch and build the site',
