@@ -14,8 +14,6 @@ const SingleEntryPlugin = require('webpack/lib/SingleEntryPlugin')
 const WebpackOptionsApply = require('webpack/lib/WebpackOptionsApply')
 const WebpackOptionsDefaulter = require('webpack/lib/WebpackOptionsDefaulter')
 
-const VirtualModulePlugin = require('webpack-virtual-modules')
-
 function extractHelperFilesFromCompilation(
 	mainCompilation,
 	childCompilation,
@@ -63,26 +61,18 @@ const applyPlugins = (compiler, plugins) =>
 module.exports = ({ plugins = [], isStatic = true }) => ({
 	apply(compiler) {
 		const pagesPromise = glob('./pages/**/*', { nodir: true })
-		const virtualModules = new VirtualModulePlugin()
 
 		const extraOptions = merge.smart(
 			{
 				target: 'web',
-				entry: async () => {
-					const pages = await pagesPromise
-					return pages.reduce((chunks, page) => {
-						const chunkName = page.replace(/[^a-z]/gi, '-')
-						const virtualPage = page.replace(/^\.\//, './virtual/')
-						return { ...chunks, [chunkName]: virtualPage }
-					}, {})
-				},
+				entry: [],
 				devtool: false,
 				mode: 'development',
 				output: {
 					path: path.resolve('site'),
 					filename: 'scripts/[name].[hash].js',
 				},
-				plugins: [virtualModules],
+				plugins: [],
 			},
 			...plugins.map(plugin => plugin.webpack),
 		)
@@ -137,9 +127,6 @@ module.exports = ({ plugins = [], isStatic = true }) => ({
 
 			const { entries, childCompilation } = await runAsChild(childCompiler)
 
-			const virtualPage = entry.replace(/^\.\//, './virtual/')
-			virtualModules.writeModule(virtualPage, 'module.exports = 5')
-
 			await Promise.all(
 				extractHelperFilesFromCompilation(
 					compilation,
@@ -186,6 +173,12 @@ module.exports = ({ plugins = [], isStatic = true }) => ({
 							: path
 									.relative('pages', entry)
 									.replace(new RegExp(`${entryType}$`), 'html')
+
+						// const clientScript = compilation.mainTemplate.hooks.assetPath.call(filename, {
+						// 	hash: childCompilation.hash,
+						// 	chunk: 'client' + chunkName,
+						// 	name: `HtmlWebpackPlugin_${index}`,
+						// })
 
 						const rendered = plugin.render(
 							properties.layout
