@@ -1,21 +1,17 @@
 # ![Löb](etc/logo.svg)
 
+![The fun static site generator for serious people](etc/tagline.svg)
+
+## ![Installation](etc/installation.svg)
+
 `npm install loeb`
 
-to think about:
+## ![Zero-configuration usage](etc/zero-config.svg)
 
-- [x] layouts/wrappers
-- [x] slugs/output paths
-- [x] assets & public files
-- [x] dev server
-- [x] command line arguments
-- [ ] more plugins
-  - [x] CSS (modules? styled-components)
-- [x] data/promises
-- [x] dynamically generated pages
-- [ ] cleaning up old cache/site files
-  - [ ] clean-webpack-plugin
-- [x] rearchitect
-  - [x] use HtmlWebpackPlugin or roll your own (probably) to generate the HTML and just become a webpack plugin/config plugin munger
-- [ ] separate named chunks for server/build bundle and clientside
-- [ ] HMR
+`loeb serve`
+
+## ![Plugins](etc/plugins.svg)
+
+- React
+- MDX
+- CSS Modules
