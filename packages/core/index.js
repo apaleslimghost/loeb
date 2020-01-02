@@ -13,6 +13,7 @@ const ExternalsPlugin = require('webpack/lib/ExternalsPlugin')
 const SingleEntryPlugin = require('webpack/lib/SingleEntryPlugin')
 const WebpackOptionsApply = require('webpack/lib/WebpackOptionsApply')
 const WebpackOptionsDefaulter = require('webpack/lib/WebpackOptionsDefaulter')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 function extractHelperFilesFromCompilation(
 	mainCompilation,
@@ -72,7 +73,7 @@ module.exports = ({ plugins = [], isStatic = true }) => ({
 					path: path.resolve('site'),
 					filename: 'scripts/[name].[hash].js',
 				},
-				plugins: [],
+				plugins: [new CleanWebpackPlugin()],
 			},
 			...plugins.map(plugin => plugin.webpack),
 		)
