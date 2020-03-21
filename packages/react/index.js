@@ -36,6 +36,5 @@ exports.webpack = {
 
 exports.render = (Component, { isStatic }) => {
 	const element = React.createElement(Component)
-	const markup = (isStatic ? renderToStaticMarkup : renderToString)(element)
-	return '<!doctype html>' + markup
+	return (isStatic ? renderToStaticMarkup : renderToString)(element)
 }

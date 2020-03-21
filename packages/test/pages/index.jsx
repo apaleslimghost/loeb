@@ -9,7 +9,7 @@ export default () => (
 	<ul>
 		{pages.map(page => (
 			<li key={page.slug}>
-				<a href={page.slug}>{page.title}</a>
+				<a href={page.slug}>{page.title} page</a>
 			</li>
 		))}
 	</ul>

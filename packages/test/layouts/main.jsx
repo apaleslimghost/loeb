@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default ({ children, assets }) => (
+export default ({ body, children, assets }) => (
 	<html>
 		<head>
 			{assets
@@ -9,6 +9,6 @@ export default ({ children, assets }) => (
 					<link key={asset} href={`/${asset}`} rel='stylesheet' />
 				))}
 		</head>
-		<body>{children}</body>
+		<body {...(body ? {dangerouslySetInnerHTML: {__html: body}} : {children})} />
 	</html>
 )

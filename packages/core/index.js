@@ -181,17 +181,24 @@ module.exports = ({ plugins = [], isStatic = true }) => ({
 						// 	name: `HtmlWebpackPlugin_${index}`,
 						// })
 
-						const rendered = plugin.render(
-							properties.layout
-								? props =>
-										properties.layout({
-											children: page({ ...props, ...properties }),
-											assets: Object.keys(compilation.assets),
-											page: { ...props, ...properties },
-										})
-								: props => page({ ...props, ...properties }),
+						const renderedPage = plugin.render(
+							props => page({ ...props, ...properties }),
 							{ isStatic },
 						)
+
+						const rendered =
+							'<!doctype html>' +
+							(properties.layout
+								? plugin.render(
+										props =>
+											properties.layout({
+												body: renderedPage,
+												assets: Object.keys(compilation.assets),
+												page: { ...props, ...properties },
+											}),
+										{ isStatic: true },
+								  )
+								: renderedPage)
 
 						compilation.assets[targetPath] = {
 							source: () => rendered,
@@ -202,7 +209,7 @@ module.exports = ({ plugins = [], isStatic = true }) => ({
 			)
 		}
 
-		compiler.hooks.make.tapPromise('loeb', async (compilation, callback) => {
+		compiler.hooks.make.tapPromise('loeb', async compilation => {
 			const pages = await pagesPromise
 			await Promise.all(
 				pages.map(page =>

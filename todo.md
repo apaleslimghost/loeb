@@ -1,0 +1,3 @@
+- [ ] clientside scripts
+- [ ] hot reloading
+- [ ] full example
