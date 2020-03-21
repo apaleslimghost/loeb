@@ -211,7 +211,7 @@ module.exports = ({ plugins = [], isStatic = true }) => ({
 						colours.grey(`building page ${colours.cyan(page)}`),
 					),
 				),
-			)
+			).catch(() => {}) // error has already been logged, we don't want it to stop the compiler
 		})
 
 		// u wot m8
