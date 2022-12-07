@@ -25,7 +25,7 @@
 		"husky": "^2.3.0",
 		"prettier": "^1.17.0",
 		"@quarterto/prettier": "^1.1.0",
-		"lint-staged": "^8.1.7",
+		"lint-staged": "^13.1.0",
 		"eslint": "^5.16.0",
 		"@quarterto/eslint-config": "^1.4.0"
 	},
